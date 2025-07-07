@@ -14,8 +14,8 @@ headers = {
 
 def solve_captcha(sitekey, url):
     print("[🔄] Mengirim captcha ke 2Captcha...")
-    if CAPTCHA_TYPE == "recaptcha":
-        captcha_type = "userrecaptcha"
+    if CAPTCHA_TYPE == "hcaptcha":
+        captcha_type = "userhcaptcha"
     else:
         captcha_type = "hcaptcha"
 
@@ -45,13 +45,13 @@ def claim_faucet():
     soup = BeautifulSoup(r.text, 'html.parser')
 
     # Ambil sitekey dari reCAPTCHA/hCaptcha
-    if CAPTCHA_TYPE == "hcaptcha":
-        sitekey_tag = soup.find("div", {"class": "g-recaptcha"})
-    else:
-        sitekey_tag = soup.find("div", {"class": "h-captcha"})
-
+    if sitekey_tag:
     sitekey = sitekey_tag["data-sitekey"]
     print(f"[🔑] Sitekey ditemukan: {sitekey}")
+else:
+    print("[❌] Gagal menemukan sitekey dari HTML.")
+    return
+
 
     captcha_token = solve_captcha(sitekey, URL)
 
