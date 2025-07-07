@@ -1,53 +1,56 @@
-import requests
 import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+import undetected_chromedriver as uc
 
-API_KEY = 'API_2CAPTCHA_ANDA'
-FAUCET_URL = 'https://example-faucet.com/claim'
-CAPTCHA_SITEKEY = 'SITEKEY_CAPTCHA_DI_HALAMAN'
-PAGE_URL = 'https://example-faucet.com/claim'
+# Konfigurasi akun FaucetPay dan 2Captcha API
+FAUCET_URL = "https://onlyfaucet.com/faucet/currency/pepe"  # Ganti dengan URL asli faucet
+WALLET_ADDRESS = "yusdialbayck92@gmail.com"
+CAPTCHA_API_KEY = "YOUR_2CAPTCHA_API_KEY"  # Opsional, jika ingin integrasi
 
-def solve_captcha(api_key, sitekey, url):
-    # Kirim permintaan ke 2Captcha
-    captcha_id = requests.post("http://2captcha.com/in.php", data={
-        'key': api_key,
-        'method': 'userrecaptcha',
-        'googlekey': sitekey,
-        'pageurl': url,
-        'json': 1
-    }).json()['request']
+# Konfigurasi browser
+def start_browser():
+    options = uc.ChromeOptions()
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    browser = uc.Chrome(options=options)
+    return browser
 
-    # Tunggu hasilnya
-    for i in range(20):
-        time.sleep(5)
-        response = requests.get("http://2captcha.com/res.php", params={
-            'key': api_key,
-            'action': 'get',
-            'id': captcha_id,
-            'json': 1
-        }).json()
-        if response['status'] == 1:
-            return response['request']
-    return None
+# Fungsi auto claim
+def claim_faucet(browser):
+    browser.get(FAUCET_URL)
+    time.sleep(5)  # Tunggu halaman selesai loading
 
-def auto_claim():
-    token = solve_captcha(API_KEY, CAPTCHA_SITEKEY, PAGE_URL)
-    if not token:
-        print("Gagal menyelesaikan captcha.")
-        return
+    # Isi wallet
+    wallet_input = browser.find_element(By.NAME, 'wallet')
+    wallet_input.clear()
+    wallet_input.send_keys(WALLET_ADDRESS)
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0',
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
+    # CAPTCHA HARUS DISELESAIKAN (manual atau otomatis dengan 2Captcha jika tersedia)
+    print("Silakan selesaikan captcha secara manual atau gunakan 2Captcha.")
 
-    data = {
-        'g-recaptcha-response': token,
-        # Parameter lain tergantung situsnya
-    }
+    # Tunggu sampai captcha selesai secara manual (atau integrasi otomatis)
+    input("Tekan Enter setelah captcha selesai dan Anda ingin melanjutkan...")
 
-    response = requests.post(FAUCET_URL, data=data, headers=headers)
-    print("Status klaim:", response.text)
+    # Klik tombol klaim
+    claim_button = browser.find_element(By.ID, 'claim-button')  # Ganti sesuai ID tombol
+    claim_button.click()
 
-# Eksekusi
-auto_claim()
-          
+    print("Claim done.")
+    time.sleep(5)
+
+# Main loop
+def main():
+    browser = start_browser()
+    try:
+        while True:
+            claim_faucet(browser)
+            print("Menunggu 5 detik untuk claim berikutnya...")
+            time.sleep(5)
+    except KeyboardInterrupt:
+        browser.quit()
+        print("Bot dihentikan.")
+
+if __name__ == '__main__':
+    main()
