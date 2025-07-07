@@ -3,7 +3,7 @@ import time
 from bs4 import BeautifulSoup
 
 url = "https://onlyfaucet.com/faucet/currency/pepe"  # ganti dengan faucet URL yang valid
-wallet_address = yusdialbayck92@gmail.com"
+wallet_address = "yusdialbayck92@gmail.com"
 headers = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 10; Termux)"
 }
